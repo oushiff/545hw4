@@ -11,33 +11,64 @@ c = [1.0000; 0.6294; 0.3962; 0.2494; 0.1569; 0.0988; 0.0622; 0.0391; 0.0246; 0.0
 rho_sq = [ 41.6667; 16.3934; 6.5359; 2.5840; 1.0235; 0.4054; 0.1606; 0.0636; 0.0252; 0.0252]/1000;
 w = [ 0; 0; 0; 0; 0; 0; 0; 0; 0; 0];
 
-dt = 0.001;
+td = 0.001;
 
+X = [];
+Y = [];
+YD = [];
+YDD = [];
+PSI = [];
 
+x = x0;
+y = y0;
+yd = z0;
+z = z0;
+t = 0;
+while t <= 1
+    X = [X; x];
+    Y = [Y; y];
+    YD = [YD; yd];
+    psi = get_psi(x);
+    PSI = [PSI; psi.'];
+    ydd = get_zd(y, z, get_f(x)); 
+    YDD = [YDD; ydd];
+    yd = yd + ydd * td;
+    y = y + yd * td;
+    z = yd;
+    x = x + get_xd(x) * td;
+    t = t + td;
+end
+figure
+plot([X])
+figure
+plot([Y YD YDD])
 
-
-
-function dx = get_dx(x) 
-    dx = - alpha_x  * x
+function xd = get_xd(x) 
+    global alpha_x;
+    xd = - alpha_x  * x;
 end
 
-function dy = get_dy(z)
-    dy = z
+function yd = get_yd(z)
+    yd = z;
 end 
 
-function dz = get_dz(y, z, f)
-    dz = alpha_z * (beta_z * (g - y) - z) + f
+function zd = get_zd(y, z, f)
+    global alpha_z beta_z g;
+    zd = alpha_z * (beta_z * (g - y) - z) + f;
 end
 
-function psi = get_psi(x, c)
-    psi = exp( - ((x - c).^2) / (2 * rho_sq) )
+function psi = get_psi(x)
+    global c rho_sq;
+    psi = exp( - ((x - c).^2) / (2 * rho_sq) );
 end
 
-function phi = get_phi(x, c)
-    psi = get_psi(x, c)
-    phi = psi * x * (g - y0) / sum(psi)
+function phi = get_phi(x)
+    global g y0;
+    psi = get_psi(x);
+    phi = psi * x * (g - y0) / sum(psi);
 end
 
-function f = get_f()
-    f = phi.' * w
+function f = get_f(x)
+    global w;
+    f = get_phi(x).' * w;
 end
