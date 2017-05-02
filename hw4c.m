@@ -1,3 +1,5 @@
+global alpha_z beta_z alpha_x y0 g c rho_sq w;
+
 alpha_z = 25;
 beta_z = 6;
 alpha_x = 8;
@@ -22,6 +24,7 @@ PSI = [];
 x = x0;
 y = y0;
 yd = z0;
+ydd = 0;
 z = z0;
 t = 0;
 while t <= 1
@@ -39,13 +42,19 @@ while t <= 1
     t = t + td;
 end
 figure
-plot([X])
+plot(0.001:0.001:1,[X])
+legend('x')
 figure
-plot([Y YD YDD])
+plot(0.001:0.001:1,[Y YD  YDD])
+legend('y', 'yd', 'ydd')
+figure
+PSI;
+plot(0.001:0.001:1,[PSI])
+legend('psi1', 'psi2', 'psi3','psi4', 'psi5', 'psi6', 'psi7','psi8', 'psi9','psi10')
 
 function xd = get_xd(x) 
     global alpha_x;
-    xd = - alpha_x  * x;
+    xd = - alpha_x  .* x;
 end
 
 function yd = get_yd(z)
@@ -59,7 +68,8 @@ end
 
 function psi = get_psi(x)
     global c rho_sq;
-    psi = exp( - ((x - c).^2) / (2 * rho_sq) );
+    
+    psi = exp( - ((x - c).^2) ./ (2 * rho_sq) );
 end
 
 function phi = get_phi(x)
